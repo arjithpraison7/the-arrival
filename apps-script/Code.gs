@@ -16,11 +16,11 @@ function doPost(e) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
     if (sh.getLastRow() === 0) {
-      sh.appendRow(['Timestamp', 'Certificate No', 'Name', 'Church', 'Phone', 'Email', 'Device']);
+      sh.appendRow(['Timestamp', 'Certificate No', 'Name', 'Church', 'Device']);
       sh.setFrozenRows(1);
     }
     const cut = (v, n) => String(v || '').slice(0, n).replace(/^[=+\-@]/, "'$&");  // no formula injection
-    sh.appendRow([new Date(), cut(p.cert, 20), cut(p.name, 60), cut(p.church, 80), "'" + cut(p.phone, 16), cut(p.email, 80), cut(p.ua, 120)]);
+    sh.appendRow([new Date(), cut(p.cert, 20), cut(p.name, 60), cut(p.church, 80), cut(p.ua, 120)]);
   } finally {
     lock.releaseLock();
   }
