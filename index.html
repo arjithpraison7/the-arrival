@@ -117,7 +117,7 @@
   form label small { text-transform: none; letter-spacing: 0; font-family: var(--serif); color: var(--muted); font-size: .9rem; }
   input { width: 100%; font: inherit; font-size: 1.05rem; padding: 10px 12px; border: 1px solid #D8C49A; border-radius: 10px; background: #fff; color: var(--ink); }
   input:focus { outline: 2px solid var(--gold); border-color: var(--gold-ink); }
-  .consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-size: .95rem; color: var(--muted); }
+  form label.consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 16px; font-family: var(--serif); text-transform: none; letter-spacing: 0; font-size: 1rem; color: var(--muted); }
   .consent input { width: auto; margin-top: 6px; }
   .msg { margin: 12px 0 0; font-size: 1rem; min-height: 1.6em; }
   .msg.err { color: var(--err); }
@@ -182,7 +182,7 @@
       <button type="button" id="open-ticket" aria-label="Open the invitation full size">
         <img src="images/invite-ticket-small.jpg" width="1456" height="720" alt="Boarding-pass invitation for The Arrival, Ecumenical Christmas Celebration, 06 Dec 2026, 5:30 PM, CSI All Saints Church, Triplicane">
       </button>
-      <p>Your boarding pass · tap to open and save</p>
+      <p>Your boarding pass · tap to open, save or <a href="print/The-Arrival-2026-Invite-Print.pdf" download>download the print PDF</a></p>
     </figure>
   </div>
 </header>
@@ -231,8 +231,6 @@
             <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="+91 …" required>
             <label for="f-email">Email <small>(optional)</small></label>
             <input id="f-email" name="email" type="email" autocomplete="email" maxlength="80">
-            <label for="f-code">Event code <small>(announced at the venue)</small></label>
-            <input id="f-code" name="code" autocomplete="off" autocapitalize="characters" maxlength="20" required>
             <label class="consent"><input type="checkbox" id="f-consent" required> <span>I attended The Arrival on 6 December 2026. The Youth Fellowship may keep my details to record attendance.</span></label>
             <div class="row-btns">
               <button class="btn btn-plum" type="submit" id="f-submit">Get my certificate</button>
@@ -276,9 +274,10 @@
 </footer>
 
 <dialog id="viewer" aria-label="Invitation">
-  <img src="images/invite-ticket.jpg" alt="The Arrival boarding-pass invitation, full size" width="2912" height="1440">
+  <img src="images/invite-ticket.jpg" alt="The Arrival boarding-pass invitation, full size" width="5824" height="2880">
   <div class="row-btns">
-    <a class="btn btn-gold" href="images/invite-ticket.jpg" download="The-Arrival-2026-Invite.jpg">Save invite</a>
+    <a class="btn btn-gold" href="print/The-Arrival-2026-Invite-Print.pdf" download>Print PDF</a>
+    <a class="btn btn-ghost" href="images/invite-ticket.jpg" download="The-Arrival-2026-Invite.jpg">Save image</a>
     <button class="btn btn-ghost" type="button" id="close-viewer">Close</button>
   </div>
 </dialog>
@@ -292,14 +291,10 @@
   var EVENT_START  = new Date("2026-12-06T17:30:00+05:30");
   var FORM_OPENS   = new Date("2026-12-06T17:00:00+05:30");   // registration unlocks
   var FORM_CLOSES  = new Date("2026-12-13T23:59:00+05:30");   // a week to register afterwards
-  // SHA-256 of the event code in CAPITALS (the code itself is announced at the venue).
-  var CODE_SHA256  = "7943f264facfbafa2a52328755934611b5ffdb3d4a564839ecb68a79f7197873";
   // Google Apps Script web-app URL that records registrations in the sheet ("" = don't record).
   var SHEET_ENDPOINT = "";
   /* ----------------------------------------------------------- */
 
-  var params = new URLSearchParams(location.search);
-  var PREVIEW = params.has("preview");          // ?preview opens the form early for testing
   var $ = function (id) { return document.getElementById(id); };
 
   /* stars */
@@ -400,7 +395,7 @@
     y = wrapCentered("participated in “The Arrival”, the Ecumenical Christmas Celebration held on Sunday, 6\u00A0December\u00A02026 at CSI All Saints' Church, Triplicane, Chennai, rejoicing in the birth of our Saviour, Jesus Christ.", y, W - 640, "48px 'EB Garamond'", C.ink, 66);
     text("“For unto us a child is born.”  Isaiah 9:6", W / 2, y + 40, "italic 40px 'EB Garamond'", C.gold);
     // officers
-    var cols = [[W * .22, "Rev. J. Samson", "Presbyter-in-Charge"], [W * .5, "Sam Rajan", "Youth Convenor"], [W * .78, "G. J. Abishek Samuel", "Youth Secretary"]];
+    var cols = [[W * .3, "S. Swathi Simon", "Youth Treasurer"], [W * .7, "G. J. Abishek Samuel", "Youth Secretary"]];
     cols.forEach(function (c) {
       ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(c[0] - 230, 1430); ctx.lineTo(c[0] + 230, 1430); ctx.stroke();
       text(c[1], c[0], 1485, "700 40px Cinzel", C.plum);
@@ -424,7 +419,6 @@
   var fmt = function (d) { return d.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }); };
   function gateState() {
     var now = new Date();
-    if (PREVIEW) return "open";
     if (now < FORM_OPENS) return "early";
     if (now > FORM_CLOSES) return "closed";
     return "open";
@@ -432,13 +426,13 @@
   function setFormEnabled(on) { Array.prototype.forEach.call(form.elements, function (el) { el.disabled = !on; }); }
   var state = gateState();
   if (state === "early") {
-    gate.innerHTML = "<b>Registration opens at the venue</b> on " + fmt(FORM_OPENS) + " IST. Scan the QR code on your boarding pass during the programme and enter the event code we announce.";
+    gate.innerHTML = "<b>Registration opens at the venue</b> on " + fmt(FORM_OPENS) + " IST. Scan the QR code on your boarding pass during the programme.";
     setFormEnabled(false);
   } else if (state === "closed") {
     gate.innerHTML = "<b>Registration has closed.</b> If you attended and missed it, please call the Youth Secretary.";
     setFormEnabled(false);
   } else {
-    gate.innerHTML = PREVIEW ? "<b>Preview mode.</b> The form is open for testing." : "<b>Registration is open.</b> Enter the event code announced at the venue.";
+    gate.innerHTML = "<b>Registration is open.</b> Fill in your details to receive your certificate.";
   }
 
   /* restore an issued certificate on this phone */
@@ -467,26 +461,21 @@
     msg.className = "msg"; msg.textContent = "";
     var d = {
       name: clean($("f-name").value), church: clean($("f-church").value),
-      phone: clean($("f-phone").value), email: clean($("f-email").value),
-      code: clean($("f-code").value).toUpperCase()
+      phone: clean($("f-phone").value), email: clean($("f-email").value)
     };
     var err = !d.name || d.name.length < 2 ? "Please enter your full name." :
               !d.church ? "Please enter your church." :
               d.phone.replace(/\D/g, "").length < 10 ? "Please enter a valid mobile number." :
-              !d.code ? "Please enter the event code." :
               !$("f-consent").checked ? "Please tick the box to confirm you attended." : "";
     if (err) { msg.className = "msg err"; msg.textContent = err; return; }
     $("f-submit").disabled = true;
-    sha256(d.code).then(function (h) {
-      if (h !== CODE_SHA256) throw new Error("code");
-      return sha256(d.name.toLowerCase() + "|" + d.phone.replace(/\D/g, "").slice(-10));
-    }).then(function (h) {
+    sha256(d.name.toLowerCase() + "|" + d.phone.replace(/\D/g, "").slice(-10)).then(function (h) {
       d.no = "AS-EC26-" + h.slice(0, 6).toUpperCase();
       var rec = { name: d.name, church: d.church, no: d.no };
       saved = rec;
       try { localStorage.setItem("arrival2026-cert", JSON.stringify(rec)); } catch (e2) {}
       if (SHEET_ENDPOINT) {
-        var body = new URLSearchParams({ name: d.name, church: d.church, phone: d.phone, email: d.email, code: d.code, cert: d.no, ua: navigator.userAgent.slice(0, 120) });
+        var body = new URLSearchParams({ name: d.name, church: d.church, phone: d.phone, email: d.email, cert: d.no, ua: navigator.userAgent.slice(0, 120) });
         fetch(SHEET_ENDPOINT, { method: "POST", mode: "no-cors", body: body }).catch(function () {});
       }
       return fontsReady.then(function () { showCert(rec); });
@@ -495,7 +484,7 @@
       $("cert").scrollIntoView({ behavior: "smooth", block: "center" });
     }).catch(function (ex) {
       msg.className = "msg err";
-      msg.textContent = ex && ex.message === "code" ? "That event code isn't right. Please check with a volunteer." : "Something went wrong. Please try again.";
+      msg.textContent = "Something went wrong. Please try again.";
     }).then(function () { $("f-submit").disabled = false; });
   });
 

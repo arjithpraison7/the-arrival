@@ -1,15 +1,15 @@
 /**
  * The Arrival 2026 — attendance register.
- * Paste into Extensions → Apps Script of a Google Sheet, set EVENT_CODE,
+ * Paste into Extensions → Apps Script of a Google Sheet,
  * Deploy → New deployment → Web app → Execute as: Me, Who has access: Anyone.
  * Put the /exec URL into SHEET_ENDPOINT in index.html.
  */
-const EVENT_CODE = 'CHANGE-ME';          // same code announced at the venue (CAPITALS)
+
 const SHEET_NAME = 'Registrations';
 
 function doPost(e) {
   const p = (e && e.parameter) || {};
-  if (String(p.code || '').trim().toUpperCase() !== EVENT_CODE) return json_({ ok: false, error: 'code' });
+
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
