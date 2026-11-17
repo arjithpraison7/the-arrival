@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//CSI All Saints Church Triplicane//The Arrival 2026//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:the-arrival-2026@csiallsaints-triplicane
+DTSTAMP:20261117T000000Z
+DTSTART:20261206T120000Z
+DTEND:20261206T150000Z
+SUMMARY:The Arrival · Ecumenical Christmas 2026
+LOCATION:CSI All Saints' Church\, Triplicane\, Chennai
+DESCRIPTION:Youth Fellowship ecumenical Christmas celebration. https://arjithpraison7.github.io/the-arrival/
+URL:https://arjithpraison7.github.io/the-arrival/
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:The Arrival at CSI All Saints' Church
+END:VALARM
+END:VEVENT
+END:VCALENDAR
