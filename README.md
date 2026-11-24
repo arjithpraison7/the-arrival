@@ -6,7 +6,7 @@ Static site for the CSI All Saints' Church, Triplicane Youth Fellowship ecumenic
 - `index.html`: everything (style, markup, script). Settings block at the top of the script:
   `EVENT_START`, `SHEET_ENDPOINT`.
 - `images/invite-ticket*.jpg`: boarding-pass invite with the QR code to this site.
-- `print/`: print PDF of the invite (210 × 104 mm, ~700 dpi, Real-ESRGAN 4× upscale of the original artwork).
+- `print/`: final print PDF of the invite (210 × 103.7 mm, lossless 600 dpi, same file as the print-shop copy).
 - Certificate of participation is drawn in the browser (canvas → PNG / A4 PDF via jsPDF).
   Form asks only name + church; always open.
 
